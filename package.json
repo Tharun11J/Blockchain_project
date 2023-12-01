@@ -1,0 +1,42 @@
+{
+  "name": "Tracetex",
+  "version": "1.0.0",
+  "description": "product ownership management system",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "solidity",
+    "truffle",
+    "ganache",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "debug": "^4.1.1",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "mysql": "^2.16.0",
+    "passport": "^0.4.0",
+    "redis": "^2.8.0",
+    "socket.io": "^2.2.0",
+    "random-key": "^0.3.2",
+    "web3": "^0.20.6",
+    "ejs": "^3.1.9",
+	"@mapbox/node-pre-gyp": "1.0.11"
+  }
+}
