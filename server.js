@@ -270,7 +270,7 @@ app.get('/', (req, res) => {
 });
 
 
-// Creating a new retailer
+// Creating a new Product
 app.get('/createProduct', (req, res) => {
     res.sendFile('views/createProduct.html', { root: __dirname });
 });
@@ -280,14 +280,14 @@ app.get('/createRetailer', (req, res) => {
     res.sendFile('views/createRetailer.html', { root: __dirname });
 });
 
-// Creating a new retailer
+// verifying products
 app.get('/verify', (req, res) => {
     res.sendFile('views/verify.html', { root: __dirname });
 });
 
-// Manufacturer generates a QR Code here
+// View all available items
 app.get('/viewItems', (req, res) => {
-	// res.sendFile('views/placeOrder.html', { root: __dirname });
+
 	 connection.query("SELECT * FROM product WHERE pstatus='A' ORDER BY pname", function (err, rows) {
 		 if (err) {
 		   res.render('placeOrder', { data: '' })
@@ -297,9 +297,9 @@ app.get('/viewItems', (req, res) => {
 	   })
  });
  
- // Manufacturer generates a QR Code here
+
 app.get('/products', (req, res) => {
-	// res.sendFile('views/placeOrder.html', { root: __dirname });
+
 	 connection.query("SELECT * FROM product ORDER BY pname", function (err, rows) {
 		 if (err) {
 		   res.render('allProducts', { data: '' })
@@ -308,6 +308,18 @@ app.get('/products', (req, res) => {
 		 }
 	   })
  });
+
+ app.get('/retailers', (req, res) => {
+
+  connection.query("SELECT * FROM retailer ORDER BY retailerName", function (err, rows) {
+    if (err) {
+      res.render('allRetailers', { data: '' })
+    } else {
+      res.render('allRetailers', { data: rows })
+    }
+    })
+});
+
 
 
 
@@ -320,7 +332,7 @@ app.post('/addProduct', (req, res) => {
 	let pcode = rand.generate(3);
     console.log(`pprice: ${pprice} \n`);
 	try {
-    // Adding the user in MySQL
+    // Adding the product in MySQL
     connection.query('SELECT * FROM PRODUCT WHERE ucode = ? LIMIT 1', [pcode], (error, results) => {
         if (error) {
             throw error;
@@ -331,8 +343,8 @@ app.post('/addProduct', (req, res) => {
         }
         connection.query('INSERT INTO PRODUCT VALUES (?,?,?,?,?,?)', [pcode,pname, pdes, mname, pprice,'A'], (error, results) => {
             if (error) {
-				throw error;
-				return res.status(400).send('Error.Please try again');
+                throw error;
+                return res.status(400).send('Error.Please try again');
             }
             res.status(200).send('Product addition successful!');
             // Adding Product to the Blockchain
@@ -380,7 +392,6 @@ app.post('/retailerSignup', (req, res) => {
 				return res.status(500).send('Internal Server Error');
             }
             // Adding retailer to Blockchain
-            // Adding Product to the Blockchain
             let ok = contractInstance.addRetailer(rcode,retailerName,retailerHashedEmail,retailerLocation, retailerHashedPassword,{ from: web3.eth.accounts[0], gas: 3500000 });
 			console.log(` addretailer ${ok} \n`);
 			if (ok) {
@@ -466,10 +477,10 @@ app.post('/placeOrder', (req, res) => {
 
 
  app.post('/verifyOrder', (req, res) => {
-	console.log('Request to /Verify order\n');
+    console.log('Request to /Verify order\n');
     let pname = req.body.pname;
     let pmanu = req.body.pmanu;
-	let ocode = req.body.ocode;
+    let ocode = req.body.ocode;
     let ucode = req.body.ucode;
     let remail = req.body.remail;
     let rpassword = req.body.rpassword;
@@ -477,38 +488,38 @@ app.post('/placeOrder', (req, res) => {
 
 	connection.query('SELECT * FROM retailer WHERE retailerEmail = ? and retailerHashedPassword= ? LIMIT 1', [remail,rpassword], (error, results) => {
         if (error) {
-			console.error('SQL Error:', error);
-			return res.status(500).send('Internal Server Error');
+            console.error('SQL Error:', error);
+            return res.status(500).send('Internal Server Error');
         }
         if (results.length) {
-		let decrypted_string=decrypt(ucode,seckey);
-		const regex = /[^\[\]\s]+/g;
+              let decrypted_string=decrypt(ucode,seckey);
+              const regex = /[^\[\]\s]+/g;
 
-		const tokens = decrypted_string.match(regex);
-		let pcode=tokens[0];
-		let rname=tokens[3];
-		let rcode=results[0].retailerCode;
-		console.log(tokens[3]);
-		console.log(` pcode ${pcode} \n`);		
-		console.log(` rcode ${rcode} \n`);
-		console.log(` ranme ${rname} \n`);
-		console.log(` rpassword ${rpassword} \n`);
-		console.log(` ocode ${ocode} \n`);
-		console.log(` ucode ${ucode} \n`);
-		let ok = contractInstance.verifyOrder(pcode,rcode,rname,rpassword,ocode,ucode);
-		console.log(` output ${ok} \n`);	
-		if (ok==1) {
-			console.log(`Product is original!\n`);
-			res.status(200).send(`Product is original and is shipped from manufacturer ${pmanu}`);
-		} else {
-			console.log('ERROR! Product not original.\n');
-			res.status(200).send(`Product is not original and is not shipped from manufacturer`);
-		}
+              const tokens = decrypted_string.match(regex);
+              let pcode=tokens[0];
+              let rname=tokens[3];
+              let rcode=results[0].retailerCode;
+              console.log(tokens[3]);
+              console.log(` pcode ${pcode} \n`);		
+              console.log(` rcode ${rcode} \n`);
+              console.log(` ranme ${rname} \n`);
+              console.log(` rpassword ${rpassword} \n`);
+              console.log(` ocode ${ocode} \n`);
+              console.log(` ucode ${ucode} \n`);
+              let ok = contractInstance.verifyOrder(pcode,rcode,rname,rpassword,ocode,ucode);
+              console.log(` output ${ok} \n`);	
+              if (ok==1) {
+                console.log(`Product is original!\n`);
+                res.status(200).send(`Product is original and is shipped from manufacturer ${pmanu}`);
+              } else {
+                console.log('ERROR! Product not original.\n');
+                res.status(200).send(`Product is not original and is not shipped from manufacturer`);
+              }
 
 
-		} else{
-			return res.status(400).send('Credentials do not belong to a Retailer');
-		}
+        } else{
+          return res.status(400).send('Credentials do not belong to a Retailer');
+        }
     });
 
 
