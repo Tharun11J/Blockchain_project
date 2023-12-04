@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <title>
-      Retailer place order
+     View All Retailers
     </title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -43,17 +43,16 @@
     
     <div class="container mt-4">
       <br />
-      <form name="myform" onsubmit="return validform()" action="http://localhost:8080/placeOrder" method="POST" >
+      <form name="myform" action="" method="POST" >
         <p class="text-center font-weight-bold">All Products</p>
       <table class="table table-bordered table-striped">
         <thead>
           <tr>
             <th>Index</th>
             <th>Name</th>
-            <th>Description</th>
-            <th>Manufacturer name</th>
-            <th>Price</th>
-            <th>Status</th>
+            <th>Email</th>
+            <th>Location</th>
+
           </tr>
         </thead>
         <tbody>
@@ -61,11 +60,10 @@
           <% if(data.length){ for(var i = 0; i< data.length; i++) {%>
           <tr>
             <th scope="row"><%= (i+1) %></th>
-            <td><%= data[i].pname%></td>
-            <td><%= data[i].pdes%></td>
-            <td><%= data[i].mname%></td>
-            <td><%= data[i].pprice%></td>
-            <td><%= data[i].pstatus%></td>
+            <td><%= data[i].retailerName%></td>
+            <td><%= data[i].retailerEmail%></td>
+            <td><%= data[i].retailerLocation%></td>
+
           </tr>
           <% } }else{ %>
           <tr>
